@@ -1,23 +1,17 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "BandpassFilter.h"
 
 //==============================================================================
 /**
 */
-class BandpassFilterAudioProcessorEditor  : public juce::AudioProcessorEditor
+class BandpassFilterAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    BandpassFilterAudioProcessorEditor (BandpassFilterAudioProcessor&);
+    BandpassFilterAudioProcessorEditor
+    (BandpassFilterAudioProcessor&, juce::AudioProcessorValueTreeState& vts);
     ~BandpassFilterAudioProcessorEditor() override;
 
     //==============================================================================
@@ -25,9 +19,13 @@ public:
     void resized() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     BandpassFilterAudioProcessor& audioProcessor;
+
+    // Slider, Attachment & Label for filter frequency
+    juce::Slider cutoffFrequencySlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
+        cutoffFrequencyAttachment;
+    juce::Label cutoffFrequencyLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BandpassFilterAudioProcessorEditor)
 };
