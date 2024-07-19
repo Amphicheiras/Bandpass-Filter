@@ -10,43 +10,45 @@ void BandpassFilter::setSamplingRate(float samplingRate)
 	this->samplingRate = samplingRate;
 }
 
-void BandpassFilter::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
+void BandpassFilter::secondOrderAllpassFilter()
 {
-	constexpr auto PI = 3.14f;
-	dnBuffer.resize(buffer.getNumChannels(), 0.f);
-	const float highPassCutoffFrequency = cutoffFrequency /*- 500.f*/; // High-pass cutoff frequency in Hz
-	const float lowPassCutoffFrequency = cutoffFrequency /*+ 500.f*/;  // Low-pass cutoff frequency in Hz
+    const auto tan = std::tan(PI * cutoffFrequency / samplingRate);
+    const auto c = (tan - 1.f) / (tan + 1.f);
+    const auto d = -std::cos(2.f * PI * cutoffFrequency / samplingRate);
 
-	// High-pass filter coefficients
-	const auto tanHighPass = std::tan(PI * highPassCutoffFrequency / samplingRate);
-	const auto a1HighPass = (tanHighPass - 1.f) / (tanHighPass + 1.f);
+    b = { -c, d * (1.f - c), 1.f };
+    a = { 1.f, d * (1.f - c), -c };
+}
 
-	// Low-pass filter coefficients
-	const auto tanLowPass = std::tan(PI * lowPassCutoffFrequency / samplingRate);
-	const auto a1LowPass = (tanLowPass - 1.f) / (tanLowPass + 1.f);
+void BandpassFilter::processBlock(juce::AudioBuffer<float>& buffer,
+    juce::MidiBuffer&) {
 
-	// Buffer for storing intermediate states
-	std::vector<float> dnBufferHighPass(buffer.getNumChannels(), 0.0f);
-	std::vector<float> dnBufferLowPass(buffer.getNumChannels(), 0.0f);
+    // resize the allpass buffers to the number of channels and
+    // zero the new ones
+    x1.resize(buffer.getNumChannels(), 0.f);
+    x2.resize(buffer.getNumChannels(), 0.f);
+    y1.resize(buffer.getNumChannels(), 0.f);
+    y2.resize(buffer.getNumChannels(), 0.f);
 
-	for (auto channel = 0; channel < buffer.getNumChannels(); channel++)
-	{
-		auto channelSamples = buffer.getWritePointer(channel);
-		for (auto i = 0; i < buffer.getNumSamples(); ++i)
-		{
-			// High-pass filter
-			const auto inputSample = channelSamples[i];
-			const auto allpassFilteredSampleHighPass = a1HighPass * inputSample + dnBufferHighPass[channel];
-			dnBufferHighPass[channel] = inputSample - a1HighPass * allpassFilteredSampleHighPass;
-			const auto highPassOutput = 0.5f * (inputSample - allpassFilteredSampleHighPass);
+    // actual processing; each channel separately
+    for (auto channel = 0; channel < buffer.getNumChannels(); ++channel) {
+        auto channelSamples = buffer.getWritePointer(channel);
 
-			// Low-pass filter on high-pass output
-			const auto allpassFilteredSampleLowPass = a1LowPass * highPassOutput + dnBufferLowPass[channel];
-			dnBufferLowPass[channel] = highPassOutput - a1LowPass * allpassFilteredSampleLowPass;
-			const auto bandPassOutput = 0.5f * (highPassOutput + allpassFilteredSampleLowPass);
+        secondOrderAllpassFilter();
 
-			// Store the result back in the buffer
-			channelSamples[i] = bandPassOutput;
-		}
-	}
+        // for each sample in the channel
+        for (auto i = 0; i < buffer.getNumSamples(); ++i) {
+            float x = channelSamples[i];
+            float y = b[0] * x + b[1] * x1[channel] + b[2] * x2[channel]
+                - a[1] * y1[channel] - a[2] * y2[channel];
+
+            y2[channel] = y1[channel];
+            y1[channel] = y;
+            x2[channel] = x1[channel];
+            x1[channel] = x;
+
+            // we scale by 0.5 to stay in the [-1, 1] range
+            channelSamples[i] = 0.5f * (x - y);
+        }
+    }
 }
