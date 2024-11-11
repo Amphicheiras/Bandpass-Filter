@@ -20,12 +20,14 @@
      cd Bandpass-Filter
     ```
 
-2. Configure with CMake:
+2. Have a look at the /root and /plugin CMakeLists.txt
+
+3. Configure with CMake:
    ```sh
    cmake -S . -B build
    ```
 
-3. Compile with CMake:
+4. Compile with CMake:
    ```sh
    cmake --build build
    ```
