@@ -2,6 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
+#include "BandpassFilter/BandpassFilter.h"
 
 class PluginProcessor final : public juce::AudioProcessor
 {
@@ -37,5 +38,9 @@ public:
     void setStateInformation(const void *data, int sizeInBytes) override;
 
 private:
+    juce::AudioProcessorValueTreeState parameters;
+    std::atomic<float> *cutoffFrequencyParameter = nullptr;
+    BandpassFilter filter;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };

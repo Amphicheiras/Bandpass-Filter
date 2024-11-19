@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22)
 
-project(3DAudioPlugin VERSION 0.1.0)
+project(BandpassFilter VERSION 0.1.0)
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/Bandpass-Filter")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/BandpassFilter")
 
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME _UF0
@@ -10,7 +10,7 @@ juce_add_plugin(${PROJECT_NAME}
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE UF00
-    PLUGIN_CODE TEMP
+    PLUGIN_CODE BPFR
     FORMATS Standalone VST3
     PRODUCT_NAME "BandpassFilter"
 )
@@ -19,8 +19,10 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/PluginEditor.cpp
         src/PluginProcessor.cpp
+        src/BandpassFilter.cpp
         ${INCLUDE_DIR}/PluginEditor.h
         ${INCLUDE_DIR}/PluginProcessor.h
+        ${INCLUDE_DIR}/BandpassFilter.h
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -50,4 +52,6 @@ else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)
+## ***** COMMENT-OUT IF USING LOCAL JUCE LIB ******
+# source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/..)
+## ************************************************

@@ -1,33 +1,37 @@
-#include "PluginName/PluginEditor.h"
-#include "PluginName/PluginProcessor.h"
+#include "BandpassFilter/PluginEditor.h"
+#include "BandpassFilter/PluginProcessor.h"
 
 PluginEditor::PluginEditor(
-    PluginProcessor &p)
+    PluginProcessor &p, juce::AudioProcessorValueTreeState &vts)
     : AudioProcessorEditor(&p), audioProcessor(p)
 {
-    juce::ignoreUnused(audioProcessor);
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize(400, 300);
+    addAndMakeVisible(cutoffFrequencySlider);
+    cutoffFrequencySlider.setSliderStyle(
+        juce::Slider::SliderStyle::LinearVertical);
+    cutoffFrequencyAttachment.reset(
+        new juce::AudioProcessorValueTreeState::SliderAttachment(
+            vts, "cutoff_frequency", cutoffFrequencySlider));
+
+    addAndMakeVisible(cutoffFrequencyLabel);
+    cutoffFrequencyLabel.setText("Cutoff Frequency", juce::dontSendNotification);
+
+    setSize(200, 400);
 }
 
 PluginEditor::~PluginEditor() {}
 
 void PluginEditor::paint(juce::Graphics &g)
 {
-    // (Our component is opaque, so we must completely fill the background with a
-    // solid colour)
-    g.fillAll(
-        getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    // (Our component is opaque, so we must completely fill the background with a solid colour)
+    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
     g.setColour(juce::Colours::white);
-    g.setFont(15.0f);
-    g.drawFittedText("Your plugin says hi!", getLocalBounds(),
-                     juce::Justification::centred, 1);
+    g.setFont(juce::FontOptions(15.0f));
 }
 
 void PluginEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    cutoffFrequencySlider.setBounds({15, 35, 100, 300});
+    cutoffFrequencyLabel.setBounds({cutoffFrequencySlider.getX() + 30,
+                                    cutoffFrequencySlider.getY() - 30, 200, 50});
 }
