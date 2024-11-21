@@ -7,13 +7,13 @@ class BandpassFilter
 {
 public:
 	void setCutoffFrequency(float cutoffFrequency);
-	void setSamplingRate(float samplingRate);
+	void setSampleRate(float newSampleRate);
 	void secondOrderAllpassFilter();
 	void processBlock(juce::AudioBuffer<float> &, juce::MidiBuffer &);
 
 private:
 	float cutoffFrequency;
-	float samplingRate;
+	float sampleRate;
 	std::vector<float> x1;
 	std::vector<float> x2;
 	std::vector<float> y1;

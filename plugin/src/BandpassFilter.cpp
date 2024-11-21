@@ -5,16 +5,16 @@ void BandpassFilter::setCutoffFrequency(float newCutoffFrequency)
     this->cutoffFrequency = newCutoffFrequency;
 }
 
-void BandpassFilter::setSamplingRate(float newSamplingRate)
+void BandpassFilter::setSampleRate(float newSampleRate)
 {
-    this->samplingRate = newSamplingRate;
+    this->sampleRate = newSampleRate;
 }
 
 void BandpassFilter::secondOrderAllpassFilter()
 {
-    const auto tan = std::tan(PI * cutoffFrequency / samplingRate);
+    const auto tan = std::tan(PI * cutoffFrequency / sampleRate);
     const auto c = (tan - 1.f) / (tan + 1.f);
-    const auto d = -std::cos(2.f * PI * cutoffFrequency / samplingRate);
+    const auto d = -std::cos(2.f * PI * cutoffFrequency / sampleRate);
 
     b = {-c, d * (1.f - c), 1.f};
     a = {1.f, d * (1.f - c), -c};
@@ -36,7 +36,12 @@ void BandpassFilter::processBlock(juce::AudioBuffer<float> &buffer,
     {
         auto channelSamples = buffer.getWritePointer(channel);
 
-        secondOrderAllpassFilter();
+        const auto tan = std::tan(PI * cutoffFrequency / sampleRate);
+        const auto c = (tan - 1.f) / (tan + 1.f);
+        const auto d = -std::cos(2.f * PI * cutoffFrequency / sampleRate);
+
+        b = {-c, d * (1.f - c), 1.f};
+        a = {1.f, d * (1.f - c), -c};
 
         // for each sample in the channel
         for (auto i = 0; i < buffer.getNumSamples(); ++i)

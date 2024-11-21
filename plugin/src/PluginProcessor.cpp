@@ -4,13 +4,8 @@
 PluginProcessor::PluginProcessor()
     : AudioProcessor(
           BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
               .withInput("Input", juce::AudioChannelSet::stereo(), true)
-#endif
-              .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-#endif
-              ),
+              .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
       parameters(*this, nullptr, juce::Identifier("BandpassPlugin"), {std::make_unique<juce::AudioParameterFloat>("cutoff_frequency", "Cutoff Frequency", juce::NormalisableRange{20.f, 20000.f, 0.1f, 0.2f, false}, 500.f)})
 {
     cutoffFrequencyParameter = parameters.getRawParameterValue("cutoff_frequency");
@@ -88,6 +83,7 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    filter.setSampleRate(static_cast<float>(sampleRate));
     juce::ignoreUnused(sampleRate, samplesPerBlock);
 }
 
@@ -123,7 +119,6 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 
 void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                    juce::MidiBuffer &midiMessages)
-
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
