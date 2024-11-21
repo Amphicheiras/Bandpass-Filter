@@ -40,6 +40,7 @@ public:
 private:
     juce::AudioProcessorValueTreeState parameters;
     std::atomic<float> *cutoffFrequencyParameter = nullptr;
+    std::atomic<float> *qFactorParameter = nullptr;
     BandpassFilter filter;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)

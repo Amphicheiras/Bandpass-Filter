@@ -23,6 +23,7 @@ target_sources(${PROJECT_NAME}
         ${INCLUDE_DIR}/PluginEditor.h
         ${INCLUDE_DIR}/PluginProcessor.h
         ${INCLUDE_DIR}/BandpassFilter.h
+        ${INCLUDE_DIR}/CustomLookAndFeel.h
 )
 
 target_include_directories(${PROJECT_NAME}

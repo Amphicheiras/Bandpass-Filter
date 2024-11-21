@@ -6,9 +6,12 @@ PluginProcessor::PluginProcessor()
           BusesProperties()
               .withInput("Input", juce::AudioChannelSet::stereo(), true)
               .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-      parameters(*this, nullptr, juce::Identifier("BandpassPlugin"), {std::make_unique<juce::AudioParameterFloat>("cutoff_frequency", "Cutoff Frequency", juce::NormalisableRange{20.f, 20000.f, 0.1f, 0.2f, false}, 500.f)})
+      parameters(*this, nullptr, juce::Identifier("BandpassPlugin"),
+                 {std::make_unique<juce::AudioParameterFloat>("cutoffFrequency", "Cutoff Frequency", juce::NormalisableRange{20.f, 20000.f, 1.f, 0.2f}, 1000.f),
+                  std::make_unique<juce::AudioParameterFloat>("qFactor", "Q", juce::NormalisableRange{0.1f, 100.f, 0.1f, 0.2f}, 1.0f)})
 {
-    cutoffFrequencyParameter = parameters.getRawParameterValue("cutoff_frequency");
+    cutoffFrequencyParameter = parameters.getRawParameterValue("cutoffFrequency");
+    qFactorParameter = parameters.getRawParameterValue("qFactor");
 }
 
 PluginProcessor::~PluginProcessor() {}
@@ -128,8 +131,10 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float> &buffer,
         buffer.clear(i, 0, buffer.getNumSamples());
 
     const auto cutoffFrequency = cutoffFrequencyParameter->load();
+    const auto qFactor = qFactorParameter->load();
 
     filter.setCutoffFrequency(cutoffFrequency);
+    filter.setQFactor(qFactor);
 
     filter.processBlock(buffer, midiMessages);
 }
