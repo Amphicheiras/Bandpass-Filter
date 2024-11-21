@@ -1,5 +1,6 @@
 # Bandpass Filter Audio Plugin
 
+<img src="https://github.com/Amphicheiras/Bandpass-Filter/blob/main/github/BPFR.png?raw=true" alt="center" width="250">
 
 ## Features
 
