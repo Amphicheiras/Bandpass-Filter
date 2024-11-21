@@ -38,7 +38,7 @@ PluginEditor::PluginEditor(
     qFactorLabel.attachToComponent(&qFactorSlider, false);
     addAndMakeVisible(qFactorLabel);
 
-    setSize(300, 300);
+    setSize(300, 200);
 }
 
 PluginEditor::~PluginEditor()
